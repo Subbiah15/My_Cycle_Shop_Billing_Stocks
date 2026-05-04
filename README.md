@@ -54,14 +54,6 @@ A premium, glassmorphic Progressive Web App (PWA) designed specifically for **Ch
 
 ---
 
-## 🔑 Authentication
-| Role | Username | Password |
-| :--- | :--- | :--- |
-| **Developer** | `developer` | `Dev123` |
-| **Admin** | `admin` | `12345s` |
-
----
-
 ## 📦 Installation & Setup
 
 1. **Clone the Repo**
