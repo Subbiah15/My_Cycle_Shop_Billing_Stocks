@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Billing, Stocks & Sales Dashboard for Chindhamani Cycle Traders">
+  <meta name="theme-color" content="#1A237E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <title>Chindhamani Cycle Traders</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Cinzel:wght@400..900&display=swap" rel="stylesheet">
+
+  <!-- Local Libraries -->
+  <script src="libs/chart.min.js"></script>
+  <script src="libs/html2canvas.min.js"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- ════════════════════════════════════════
+       Login View
+       ════════════════════════════════════════ -->
+  <div id="login-view" data-view>
+    <div class="login-container">
+      <div class="login-card">
+        <h1 class="login-title">Chindhamani Cycle Traders</h1>
+        <p class="login-subtitle">Please sign in to continue</p>
+        <form id="login-form" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="login-username">Username</label>
+            <input type="text" id="login-username" placeholder="Enter username" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" placeholder="Enter password" required autocomplete="current-password">
+          </div>
+          <div id="login-error" class="hidden" style="color:red;font-size:0.9rem;margin-bottom:15px;text-align:center;"></div>
+          <button type="submit" class="btn-primary" style="width:100%;">Sign In</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       Landing Page
+       ════════════════════════════════════════ -->
+  <div id="landing-page" data-view>
+    <header style="position: relative;">
+      <button onclick="logout()" class="back-btn btn-red" style="position: absolute; top: 15px; right: 20px;">🚪 Logout</button>
+      <h1>Chindhamani Cycle Trader</h1>
+      <div class="shop-details">
+        <p>No. 68, Trichy Main Road, MUSIRI - 621 211, Tamil Nadu | Phone : +91 96592 22281</p>
+      </div>
+    </header>
+
+    <main>
+      <div class="card-container">
+        <a href="#/dashboard" class="nav-card" id="btn-sales-dashboard">
+          <span>📊</span>
+          <span>Sales<br>Dashboard</span>
+        </a>
+        <a href="#/billing" class="nav-card" id="btn-billing">
+          <span>🧾</span>
+          <span>Billing</span>
+        </a>
+        <a href="#/stocks" class="nav-card" id="btn-stocks">
+          <span>📦</span>
+          <span>Stocks</span>
+        </a>
+      </div>
+    </main>
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       Sales Dashboard
+       ════════════════════════════════════════ -->
+  <div id="dashboard-view" class="hidden" data-view>
+    <header class="stocks-header header-split">
+      <div class="header-left">
+        <button class="back-btn" data-back="#/">← Back</button>
+        <h1>Sales Dashboard</h1>
+      </div>
+    </header>
+
+    <main class="dashboard-main">
+      <!-- Period Tabs -->
+      <div class="dashboard-tabs">
+        <button class="dash-tab active" data-period="daily">Daily</button>
+        <button class="dash-tab" data-period="weekly">Weekly</button>
+        <button class="dash-tab" data-period="monthly">Monthly</button>
+        <button class="dash-tab" data-period="yearly">Yearly</button>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="dashboard-kpi-row">
+        <div class="kpi-card kpi-revenue">
+          <span class="kpi-icon">💰</span>
+          <div>
+            <h3 id="kpi-revenue-label">Today's Revenue</h3>
+            <div class="kpi-value" id="kpi-revenue">₹0.00</div>
+          </div>
+        </div>
+        <div class="kpi-card kpi-profit">
+          <span class="kpi-icon">📈</span>
+          <div>
+            <h3 id="kpi-profit-label">Today's Profit</h3>
+            <div class="kpi-value" id="kpi-profit">₹0.00</div>
+          </div>
+        </div>
+        <div class="kpi-card kpi-bills">
+          <span class="kpi-icon">🧾</span>
+          <div>
+            <h3 id="kpi-bills-label">Today's Bills</h3>
+            <div class="kpi-value" id="kpi-bills">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="dashboard-charts-grid">
+        <div class="chart-card">
+          <h3>Revenue Overview</h3>
+          <div class="chart-wrapper"><canvas id="revenueChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Sales by Category</h3>
+          <div class="chart-wrapper"><canvas id="categoryChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="dashboard-table-section">
+        <div class="header-split" style="margin-bottom: 15px;">
+           <h3 id="table-title">Daily Sales Report</h3>
+           <button id="btn-download-sales-report" class="back-btn btn-green">📥 Download Excel</button>
+        </div>
+        <div class="table-container">
+          <table class="data-table" id="dashboard-data-table">
+            <thead id="data-table-head"></thead>
+            <tbody id="data-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       Billing Mode Selection
+       ════════════════════════════════════════ -->
+  <div id="billing-mode-view" class="hidden" data-view>
+    <header class="stocks-header header-split">
+      <div class="header-left">
+        <button class="back-btn" data-back="#/">← Back</button>
+        <h1>Select Billing Type</h1>
+      </div>
+      <div class="header-actions">
+        <button id="btn-history-billing" class="back-btn btn-green">📜 History</button>
+        <button id="btn-view-cart-billing" class="cart-btn">
+          🛒 <span id="cart-badge-billing" class="cart-badge">0</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <div class="card-container">
+        <a href="#" class="nav-card" id="btn-retail">
+          <span>👨</span>
+          <span>Retail Billing</span>
+        </a>
+        <a href="#" class="nav-card" id="btn-wholesale">
+          <span>🏢</span>
+          <span>Wholesale Billing</span>
+        </a>
+      </div>
+    </main>
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       Stocks Monitoring
+       ════════════════════════════════════════ -->
+  <div id="stocks-page" class="hidden" data-view>
+    <header class="stocks-header header-split">
+      <div class="header-left">
+        <button class="back-btn" data-back="#/">← Back</button>
+        <h1>Stocks Monitoring System</h1>
+      </div>
+      <div class="header-actions">
+        <button id="btn-all-stocks-report" class="back-btn btn-green">📊 All Stocks Report</button>
+        <button id="btn-low-stocks" class="back-btn btn-red">⚠️ Low Stocks</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="card-container">
+        <a href="#" class="nav-card" id="btn-add-stock">
+          <span>➕</span>
+          <span>Add New<br>Stocks</span>
+        </a>
+        <a href="#" class="nav-card" id="btn-update-stock">
+          <span>🔄</span>
+          <span>Update<br>Stocks</span>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       All Stocks Report View
+       ════════════════════════════════════════ -->
+  <div id="stocks-report-view" class="hidden" data-view>
+    <header class="stocks-header header-split">
+      <div class="header-left">
+        <button class="back-btn" data-back="#/stocks">← Back</button>
+        <h1>All Stocks Report</h1>
+      </div>
+      <div class="header-actions">
+        <button id="btn-download-stocks-report" class="back-btn btn-green">📥 Download Excel</button>
+      </div>
+    </header>
+    <main>
+      <div class="dashboard-table-section" style="margin-top:0;">
+        <div class="table-container" style="max-height: 70vh;">
+          <table class="data-table" id="all-stocks-table">
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Size</th>
+                <th>Category</th>
+                <th>Section</th>
+                <th>Actual (₹)</th>
+                <th>Retail (₹)</th>
+                <th>Wholesale (₹)</th>
+                <th>Available Stocks</th>
+                <th>No. of Sold Stocks</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="all-stocks-body">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       Category Selection (shared)
+       ════════════════════════════════════════ -->
+  <div id="category-page" class="hidden" data-view>
+    <header class="stocks-header header-split">
+      <div class="header-left">
+        <button id="btn-back-categories" class="back-btn">← Back</button>
+        <h1 id="category-title">Select Category</h1>
+      </div>
+      <div class="header-actions">
+        <button id="btn-history-main" class="back-btn btn-green">📜 History</button>
+        <button id="btn-view-cart-main" class="cart-btn">
+          🛒 <span id="cart-badge-main" class="cart-badge">0</span>
+        </button>
+      </div>
+    </header>
+    
+    <!-- 🔍 Global Search Bar on Categories Page -->
+    <div class="search-container no-print">
+      <div class="search-box">
+        <input type="text" id="global-search" placeholder="🔍 Search ANY product by name, size, or price..." autocomplete="off">
+        <button id="btn-clear-global-search" class="hidden">×</button>
+        <div id="search-dropdown" class="search-dropdown hidden"></div>
+      </div>
+    </div>
+
+    <main>
+      <div class="card-container grid-4-2">
+        <a href="#" class="nav-card category-card"><span>🚲</span><span>28 x 1.5<br>Cycle</span></a>
+        <a href="#" class="nav-card category-card"><span>🚲</span><span>26 x 1.5<br>Cycle</span></a>
+        <a href="#" class="nav-card category-card"><span>🚵</span><span>MTB &amp;<br>Race Cycle</span></a>
+        <a href="#" class="nav-card category-card"><span>🧒</span><span>Kids<br>Cycle</span></a>
+        <a href="#" class="nav-card category-card"><span>🛠️</span><span>Common</span></a>
+        <a href="#" class="nav-card category-card"><span>❓</span><span>Others</span></a>
+      </div>
+    </main>
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       Add / Edit Product Form
+       ════════════════════════════════════════ -->
+  <div id="add-cycle-form-view" class="hidden" data-view>
+    <header class="stocks-header">
+      <button id="btn-cancel-add" class="back-btn">Cancel</button>
+      <h1 id="form-title">New Stocks</h1>
+    </header>
+
+    <main>
+      <form id="cycle-registration-form" class="registration-form">
+        <div class="form-group" id="cycle-size-group">
+          <label>Cycle Size</label>
+          <input type="text" id="cycle-size" placeholder="e.g. 28 x 1.5" required>
+        </div>
+
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="cycle-name" placeholder="e.g. Hero Jet" required>
+        </div>
+
+        <div class="form-group" id="common-checkboxes-group" style="display: none;">
+          <label>Common on</label>
+          <div class="checkbox-group">
+            <label><input type="checkbox" name="common_on" value="28 X 1.5 CYCLE"> 28 x 1.5</label>
+            <label><input type="checkbox" name="common_on" value="26 X 1.5 CYCLE"> 26 x 1.5</label>
+            <label><input type="checkbox" name="common_on" value="MTB & RACE CYCLE"> MTB / Race</label>
+            <label><input type="checkbox" name="common_on" value="KIDS CYCLE"> Kids Cycle</label>
+          </div>
+        </div>
+
+        <div class="form-group" id="product-section-group">
+          <label>Product Section</label>
+          <select id="product-section" required>
+            <option value="" disabled selected>Select Section</option>
+            <option value="Wheel">Wheel</option>
+            <option value="Brake">Brake</option>
+            <option value="Pedal">Pedal</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Actual Price</label>
+            <input type="number" id="actual-price" placeholder="0.00" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Retail Price</label>
+            <input type="number" id="retail-price" placeholder="0.00" required>
+          </div>
+          <div class="form-group">
+            <label>Wholesale Price</label>
+            <input type="number" id="wholesale-price" placeholder="0.00" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>No. of Stocks</label>
+            <input type="number" id="stock-count" placeholder="0" required>
+          </div>
+          <div class="form-group">
+            <label>Low Stock Threshold</label>
+            <input type="number" id="low-stock-threshold" placeholder="5" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Upload Image</label>
+          <div class="file-input-container">
+            <input type="file" id="cycle-image" accept="image/*">
+            <div id="image-preview" class="image-preview"><span>No image selected</span></div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="save-btn" id="btn-save-product">Add &amp; Save</button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       Product List (shared: Billing & Update)
+       ════════════════════════════════════════ -->
+  <div id="product-list-view" class="hidden" data-view>
+    <header class="stocks-header header-split">
+      <div class="header-left">
+        <button id="btn-back-products" class="back-btn">← Back</button>
+        <h1 id="product-list-title">Select Product</h1>
+      </div>
+      <div class="header-actions">
+        <button id="btn-history-products" class="back-btn btn-green">📜 History</button>
+        <button id="btn-view-cart" class="cart-btn">
+          🛒 <span id="cart-badge" class="cart-badge">0</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 🔍 Local Search Bar on Products Page -->
+    <div class="search-container no-print">
+      <div class="search-box">
+        <input type="text" id="local-search" placeholder="🔍 Search ANY product by name, size, or price..." autocomplete="off">
+        <button id="btn-clear-local-search" class="hidden">×</button>
+        <div id="local-search-dropdown" class="search-dropdown hidden"></div>
+      </div>
+    </div>
+
+    <main id="products-container" class="all-products-view"></main>
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       Cart
+       ════════════════════════════════════════ -->
+  <div id="cart-view" class="hidden" data-view>
+    <header class="stocks-header">
+      <button class="back-btn" data-back="#/products">← Back</button>
+      <h1>Cart</h1>
+      <button id="btn-clear-cart" class="clear-cart-btn">Empty Cart</button>
+    </header>
+    <main id="cart-container" class="cart-main-view"></main>
+    <div class="cart-footer">
+      <div class="cart-total">Total: ₹<span id="cart-total-price">0.00</span></div>
+      <button id="btn-checkout" class="save-btn btn-checkout">Checkout</button>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       Checkout
+       ════════════════════════════════════════ -->
+  <div id="checkout-info-view" class="hidden" data-view>
+    <header class="stocks-header">
+      <button class="back-btn" data-back="#/cart">← Back to Cart</button>
+      <h1>Checkout Details</h1>
+    </header>
+
+    <main>
+      <form id="checkout-form" class="registration-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Bill No.</label>
+            <input type="text" id="bill-no" readonly class="input-readonly">
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="bill-date" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Customer Name (Optional)</label>
+          <input type="text" id="customer-name" placeholder="Enter Customer Name">
+        </div>
+
+        <div class="form-group">
+          <label>Sales Type</label>
+          <div class="checkbox-group grid-2">
+            <label><input type="radio" name="sales_type" value="RETAIL"> Retail</label>
+            <label><input type="radio" name="sales_type" value="WHOLESALE"> Wholesale</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Mode of Payment</label>
+          <div class="checkbox-group grid-2">
+            <label><input type="radio" name="payment_mode" value="UPI"> UPI</label>
+            <label><input type="radio" name="payment_mode" value="CASH"> Cash</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Final Discounted Price</label>
+          <input type="number" id="final-price" placeholder="0.00" required>
+        </div>
+
+        <div class="form-actions form-actions-top">
+          <button type="button" id="btn-finalize-bill" class="save-btn btn-bill">BILL</button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       Invoice / Bill
+       ════════════════════════════════════════ -->
+  <div id="invoice-view" class="hidden" data-view>
+    <header class="stocks-header no-print">
+      <button class="back-btn" data-back="#/">← Back to Main</button>
+      <h1>Bill Invoice</h1>
+    </header>
+
+    <main class="invoice-container" id="bill-invoice-content">
+      <div class="bill-row">
+        <span>Bill No: <strong id="inv-bill-no"></strong></span>
+        <span>Date: <strong id="inv-date"></strong></span>
+      </div>
+      <div class="bill-header">
+        <h2 class="shop-name">Chindhamani Cycle Traders</h2>
+        <p class="shop-info">No. 68, Trichy Main Road, MUSIRI - 621 211</p>
+        <p class="shop-info">Phone: +91 96592 22281</p>
+      </div>
+      <div class="customer-info">Customer Name: <span id="inv-customer-name">_________________</span></div>
+      <table class="bill-table">
+        <thead>
+          <tr>
+            <th width="10%">S.No</th>
+            <th width="50%">Name</th>
+            <th width="20%">Quantity</th>
+            <th width="20%">Prize</th>
+          </tr>
+        </thead>
+        <tbody id="inv-items-body"></tbody>
+      </table>
+      <div class="bill-summary">
+        <div class="summary-row"><span>Subtotal</span><span>Rs. <span id="inv-subtotal"></span></span></div>
+        <div class="summary-row"><span>Discount</span><span>- Rs. <span id="inv-discount"></span></span></div>
+        <div class="summary-row total-row"><span>Total Amount</span><span>Rs. <span id="inv-total"></span></span></div>
+        <div class="payment-info">Mode of Payment: <strong id="inv-payment-mode"></strong></div>
+      </div>
+      <div class="invoice-footer"><p>Thank You! Visit Again</p></div>
+    </main>
+
+    <div class="invoice-actions no-print">
+      <button id="btn-download-bill" class="action-btn download">📥 Download Invoice</button>
+      <button id="btn-share-bill" class="action-btn share">🔗 Share Invoice</button>
+      <button id="btn-finish-bill" class="action-btn home" style="background:#28a745">✅ Finish & Back to Home</button>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       Sales History
+       ════════════════════════════════════════ -->
+  <div id="history-view" class="hidden" data-view>
+    <header class="stocks-header">
+      <button class="back-btn" data-back="#/">← Back</button>
+      <h1>Sales History (Last 7 Days)</h1>
+    </header>
+    <main id="history-container" class="history-main-view"></main>
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       Low Stocks Modal (Overlay)
+       ════════════════════════════════════════ -->
+  <div id="low-stocks-modal" class="hidden">
+    <div class="modal-content">
+      <header class="stocks-header header-split modal-header">
+        <h2>⚠️ Low Stock Alert</h2>
+        <button id="btn-close-low-stocks" class="back-btn btn-red">Close</button>
+      </header>
+      <div class="modal-body">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Current Stock</th>
+              <th>Threshold</th>
+            </tr>
+          </thead>
+          <tbody id="low-stocks-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Local Libraries -->
+  <script src="libs/html2canvas.min.js"></script>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <!-- Firebase Setup -->
+  <script src="js/firebase-config.js"></script>
+
+  <!-- Auth Script (MUST BE FIRST) -->
+  <script src="js/auth.js"></script>
+
+  <!-- Application Scripts -->
+  <script src="js/state.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/invoice.js"></script>
+  <script src="js/init.js"></script>
+</body>
+
+</html>
