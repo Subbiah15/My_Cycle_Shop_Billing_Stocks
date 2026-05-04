@@ -13,6 +13,8 @@
 
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="Chindhamani_Cycle_Logo.png">
+  <link rel="apple-touch-icon" href="Chindhamani_Cycle_Logo.png">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,6 +37,7 @@
   <div id="login-view" data-view>
     <div class="login-container">
       <div class="login-card">
+        <img src="Chindhamani_Cycle_Logo.png" alt="Logo" class="login-logo">
         <h1 class="login-title">Chindhamani Cycle Traders</h1>
         <p class="login-subtitle">Please sign in to continue</p>
         <form id="login-form" onsubmit="handleLogin(event)">
@@ -57,9 +60,10 @@
        Landing Page
        ════════════════════════════════════════ -->
   <div id="landing-page" data-view>
-    <header style="position: relative;">
+    <header style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 30px 20px;">
       <button onclick="logout()" class="back-btn btn-red" style="position: absolute; top: 15px; right: 20px;">🚪 Logout</button>
-      <h1>Chindhamani Cycle Trader</h1>
+      <img src="Chindhamani_Cycle_Logo.png" alt="Logo" class="main-logo">
+      <h1 style="margin-top: 10px;">Chindhamani Cycle Trader</h1>
       <div class="shop-details">
         <p>No. 68, Trichy Main Road, MUSIRI - 621 211, Tamil Nadu | Phone : +91 96592 22281</p>
       </div>
@@ -91,6 +95,7 @@
     <header class="stocks-header header-split">
       <div class="header-left">
         <button class="back-btn" data-back="#/">← Back</button>
+        <img src="Chindhamani_Cycle_Logo.png" alt="Logo" class="header-icon">
         <h1>Sales Dashboard</h1>
       </div>
     </header>
@@ -497,16 +502,27 @@
     </header>
 
     <main class="invoice-container" id="bill-invoice-content">
-      <div class="bill-row">
+      <div class="bill-row" style="margin-bottom: 20px;">
         <span>Bill No: <strong id="inv-bill-no"></strong></span>
         <span>Date: <strong id="inv-date"></strong></span>
       </div>
-      <div class="bill-header">
-        <h2 class="shop-name">Chindhamani Cycle Traders</h2>
-        <p class="shop-info">No. 68, Trichy Main Road, MUSIRI - 621 211</p>
-        <p class="shop-info">Phone: +91 96592 22281</p>
+
+      <!-- Invoice Header -->
+      <div class="invoice-header">
+        <div class="inv-header-left">
+          <img src="Chindhamani_Cycle_Logo.png" alt="Logo" class="inv-logo">
+          <div class="inv-shop-info">
+            <h2>CHINDHAMANI CYCLE TRADERS</h2>
+            <p>No. 68, Trichy Main Road, MUSIRI - 621 211</p>
+            <p>Tamil Nadu | Phone : +91 96592 22281</p>
+          </div>
+        </div>
       </div>
-      <div class="customer-info">Customer Name: <span id="inv-customer-name">_________________</span></div>
+
+      <div class="customer-info-row">
+          Customer Name: <span id="inv-customer-name">_________________</span>
+      </div>
+
       <table class="bill-table">
         <thead>
           <tr>
