@@ -111,31 +111,55 @@ document.getElementById('btn-download-bill').addEventListener('click', () => {
 document.getElementById('btn-share-bill').addEventListener('click', async () => {
     const invoiceEl = document.getElementById('bill-invoice-content');
     const btn = document.getElementById('btn-share-bill');
-    const btnText = btn.innerText;
-    btn.innerText = "⌛ Sharing...";
+    const originalText = btn.innerText;
+    
+    btn.innerText = "⏳ Preparing...";
     btn.disabled = true;
 
     try {
+        // 1. Capture the invoice as a high-quality image
         const canvas = await html2canvas(invoiceEl, {
-            scale: 1.5, useCORS: true, backgroundColor: "#ffffff", logging: false
+            scale: 2, 
+            useCORS: true, 
+            backgroundColor: "#ffffff", 
+            logging: false,
+            width: invoiceEl.offsetWidth,
+            height: invoiceEl.offsetHeight
         });
-        canvas.toBlob(async (blob) => {
-            const file = new File([blob], `Bill_No_${lastBillNumber}.png`, { type: 'image/png' });
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                try {
-                    await navigator.share({ files: [file], title: 'Cycle Shop Invoice', text: `Invoice: ${file.name}` });
-                } catch (e) { console.log('Share cancelled'); }
-            } else {
-                alert('Your browser does not support sharing files. Please use Download.');
+
+        // 2. Convert to Blob
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        if (!blob) throw new Error("Failed to create image blob");
+
+        const file = new File([blob], `Bill_No_${lastBillNumber}.png`, { type: 'image/png' });
+
+        // 3. Try to use Native Share (Mobile)
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+                await navigator.share({
+                    files: [file],
+                    title: 'Cycle Shop Invoice',
+                    text: `Invoice for Bill No: ${lastBillNumber}`
+                });
+            } catch (shareErr) {
+                if (shareErr.name !== 'AbortError') throw shareErr;
             }
-            btn.innerText = btnText;
-            btn.disabled = false;
-        }, 'image/png');
+        } else {
+            // 4. Fallback: Direct Download if sharing is not supported for files
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL("image/png");
+            link.download = `Bill_No_${lastBillNumber}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            alert('Your mobile browser does not support direct image sharing. The invoice has been downloaded as an image instead.');
+        }
     } catch (err) {
         console.error('Invoice capture failed:', err);
-        btn.innerText = btnText;
+        alert('Could not share or generate the invoice image. Please use the Print/Download button.');
+    } finally {
+        btn.innerText = originalText;
         btn.disabled = false;
-        alert('Could not generate invoice image.');
     }
 });
 
