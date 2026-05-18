@@ -2,7 +2,7 @@
  * AUTHENTICATION — Daily Login Session & Roles
  * ============================================= */
 
-window.dbPrefix = 'developer/'; // Default to developer
+window.dbPrefix = ''; // Default to developer
 let currentUser = null;
 
 function checkAuth() {
@@ -22,7 +22,7 @@ function checkAuth() {
         // Restore session
         currentUser = session.username;
         // Prefix is admin/ for admin mode, developer/ for developer explore mode
-        window.dbPrefix = session.username === 'admin' ? 'admin/' : 'developer/';
+        window.dbPrefix = session.username === 'admin' ? 'admin/' : '';
         return true;
     } catch (e) {
         localStorage.removeItem('cycleShopSession');
@@ -52,7 +52,7 @@ function createSession(username) {
     }));
     
     currentUser = username;
-    window.dbPrefix = username === 'admin' ? 'admin/' : 'developer/';
+    window.dbPrefix = username === 'admin' ? 'admin/' : '';
     
     // Clear the form fields if elements exist
     const loginForm = document.getElementById('login-form');
@@ -111,7 +111,7 @@ window.showRoleSelection = function() {
 window.logout = function() {
     localStorage.removeItem('cycleShopSession');
     currentUser = null;
-    window.dbPrefix = 'developer/';
+    window.dbPrefix = '';
     navigate('#/login');
     // Force reload to clear all cached state arrays
     window.location.reload();
