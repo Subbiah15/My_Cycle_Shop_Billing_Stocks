@@ -84,11 +84,11 @@ function renderCart() {
                     <div class="cart-item-info">
                         <h3>${item.name}</h3>
                         <p>${item.size}</p>
-                        <p class="cart-qty-price">${item.qty} × ₹${item.sellingPrice}</p>
+                        <p class="cart-qty-price">${item.qty} × ₹${parseFloat(item.sellingPrice).toFixed(2)}</p>
                     </div>
                 </div>
                 <div class="cart-item-right">
-                    <div class="cart-item-price">₹${itemTotal}.00</div>
+                    <div class="cart-item-price">₹${parseFloat(itemTotal).toFixed(2)}</div>
                     <button class="remove-cart-btn" onclick="removeFromCart(${index})">×</button>
                 </div>`;
             container.appendChild(el);

@@ -208,9 +208,9 @@ window.renderStocksReport = () => {
             <td>${p.size || '-'}</td>
             <td>${p.category || 'N/A'}</td>
             <td>${p.section || 'N/A'}</td>
-            <td style="color:#666;">₹${p.actualPrice || 0}</td>
-            <td>₹${p.retailPrice}</td>
-            <td>₹${p.wholesalePrice}</td>
+            <td style="color:#666;">₹${parseFloat(p.actualPrice || 0).toFixed(2)}</td>
+            <td>₹${parseFloat(p.retailPrice || 0).toFixed(2)}</td>
+            <td>₹${parseFloat(p.wholesalePrice || 0).toFixed(2)}</td>
             <td style="font-weight:bold; color:${p.stock > 0 ? '#333' : 'red'};">${p.stock}</td>
             <td style="font-weight:bold; color:#1a237e;">${soldQty}</td>
             <td>${status}</td>

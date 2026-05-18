@@ -68,7 +68,7 @@ function createProductCard(product) {
         const price = billingType === 'WHOLESALE' ? product.wholesalePrice : product.retailPrice;
         footerContent = `
             <div class="price-info">
-                <div class="price-tag">₹${price}.00</div>
+                <div class="price-tag">₹${parseFloat(price).toFixed(2)}</div>
                 <button class="add-to-bill-btn" onclick="addToBill('${product.id}')">ADD</button>
             </div>
             <div class="quantity-controls">
@@ -80,8 +80,8 @@ function createProductCard(product) {
         footerContent = `
             <div class="update-footer">
                 <div class="price-row-update">
-                    <div class="price-tag-sm">R: ₹${product.retailPrice}</div>
-                    <div class="price-tag-sm wholesale">W: ₹${product.wholesalePrice}</div>
+                    <div class="price-tag-sm">R: ₹${parseFloat(product.retailPrice).toFixed(2)}</div>
+                    <div class="price-tag-sm wholesale">W: ₹${parseFloat(product.wholesalePrice).toFixed(2)}</div>
                 </div>
                 <div class="update-controls">
                     <button class="edit-btn" onclick="event.stopPropagation(); editProduct('${product.id}')">EDIT</button>
@@ -91,7 +91,7 @@ function createProductCard(product) {
     }
 
     card.innerHTML = `
-        <div class="stock-badge" id="stock-badge-${product.id}">${product.stock} Available ${currentMode === 'UPDATE' ? `(₹${product.actualPrice} AP)` : ''}</div>
+        <div class="stock-badge" id="stock-badge-${product.id}">${product.stock} Available ${currentMode === 'UPDATE' ? `(₹${parseFloat(product.actualPrice).toFixed(2)} AP)` : ''}</div>
         <div class="product-image-container">
             ${product.image ? `<img src="${product.image}">` : '<span>No Image</span>'}
         </div>
@@ -213,9 +213,9 @@ document.getElementById('cycle-registration-form').addEventListener('submit', as
             commonOn: Array.from(commonOnCheckboxes).map(cb => cb.value),
             name: document.getElementById('cycle-name').value,
             size: document.getElementById('cycle-size').value,
-            actualPrice: parseInt(document.getElementById('actual-price').value),
-            retailPrice: parseInt(document.getElementById('retail-price').value),
-            wholesalePrice: parseInt(document.getElementById('wholesale-price').value),
+            actualPrice: parseFloat(document.getElementById('actual-price').value) || 0,
+            retailPrice: parseFloat(document.getElementById('retail-price').value) || 0,
+            wholesalePrice: parseFloat(document.getElementById('wholesale-price').value) || 0,
             stock: stockVal,
             lowStockThreshold: parseInt(document.getElementById('low-stock-threshold').value) || 5,
             image: imageUrl,
@@ -316,7 +316,7 @@ function setupSearch(inputId, btnId, dropdownId) {
                                     <div class="dropdown-item-name">${product.name} ${product.size ? `(${product.size})` : ''}</div>
                                     <div class="dropdown-item-meta">${product.category} • <span style="color:${product.stock > 0 ? '#4CAF50' : 'red'}">${product.stock} in stock</span></div>
                                 </div>
-                                <div class="dropdown-item-price">₹${price}</div>
+                                <div class="dropdown-item-price">₹${parseFloat(price).toFixed(2)}</div>
                             `;
                             
                             item.addEventListener('click', () => {

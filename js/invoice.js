@@ -35,7 +35,7 @@ document.getElementById('btn-finalize-bill').addEventListener('click', async () 
         subtotal += itemTotal;
         const row = document.createElement('tr');
         const name = item.size ? `${item.name} (${item.size})` : item.name;
-        row.innerHTML = `<td>${i + 1}</td><td>${name}</td><td>${item.qty}</td><td>${itemTotal}.00</td>`;
+        row.innerHTML = `<td>${i + 1}</td><td>${name}</td><td>${item.qty}</td><td>${parseFloat(itemTotal).toFixed(2)}</td>`;
         invBody.appendChild(row);
     });
 
