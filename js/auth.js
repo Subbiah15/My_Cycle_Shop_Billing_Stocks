@@ -2,7 +2,7 @@
  * AUTHENTICATION — Daily Login Session & Roles
  * ============================================= */
 
-window.dbPrefix = '';
+window.dbPrefix = 'developer/'; // Default to developer
 let currentUser = null;
 
 function checkAuth() {
@@ -21,7 +21,8 @@ function checkAuth() {
 
         // Restore session
         currentUser = session.username;
-        window.dbPrefix = session.username === 'admin' ? 'admin/' : '';
+        // Prefix is admin/ for admin mode, developer/ for developer explore mode
+        window.dbPrefix = session.username === 'admin' ? 'admin/' : 'developer/';
         return true;
     } catch (e) {
         localStorage.removeItem('cycleShopSession');
@@ -35,9 +36,7 @@ function handleLogin(e) {
     const pInput = document.getElementById('login-password').value.trim();
     const errorEl = document.getElementById('login-error');
 
-    if (uInput === 'developer' && pInput === 'Dev123') {
-        createSession('developer');
-    } else if (uInput === 'admin' && pInput === '12345s') {
+    if (uInput === 'admin' && pInput === '12345s') {
         createSession('admin');
     } else {
         errorEl.innerText = 'Invalid username or password';
@@ -53,11 +52,14 @@ function createSession(username) {
     }));
     
     currentUser = username;
-    window.dbPrefix = username === 'admin' ? 'admin/' : '';
+    window.dbPrefix = username === 'admin' ? 'admin/' : 'developer/';
     
-    // Clear the form
-    document.getElementById('login-form').reset();
-    document.getElementById('login-error').classList.add('hidden');
+    // Clear the form fields if elements exist
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) loginForm.reset();
+    
+    const errorEl = document.getElementById('login-error');
+    if (errorEl) errorEl.classList.add('hidden');
     
     // Initialize DB listeners now that we have the right prefix
     if (typeof initDatabaseListeners === 'function') {
@@ -68,11 +70,48 @@ function createSession(username) {
     navigate('#/');
 }
 
+// ── Role Selector Navigation Actions ──
+window.selectRole = function(role) {
+    if (role === 'developer') {
+        // Bypasses all credentials, logs in as developer, and navigates immediately
+        createSession('developer');
+    } else if (role === 'admin-transition') {
+        // Transition animation to show password prompt
+        const selectionCard = document.getElementById('role-selection-card');
+        const loginCard = document.getElementById('admin-login-card');
+        if (selectionCard && loginCard) {
+            selectionCard.classList.add('hidden');
+            loginCard.classList.remove('hidden');
+            
+            // Focus on password
+            const pInput = document.getElementById('login-password');
+            if (pInput) {
+                pInput.value = '';
+                pInput.focus();
+            }
+        }
+    }
+};
+
+window.showRoleSelection = function() {
+    // Transition back from password prompt to main selection screen
+    const selectionCard = document.getElementById('role-selection-card');
+    const loginCard = document.getElementById('admin-login-card');
+    if (selectionCard && loginCard) {
+        loginCard.classList.add('hidden');
+        selectionCard.classList.remove('hidden');
+        
+        // Reset validation error if any
+        const errorEl = document.getElementById('login-error');
+        if (errorEl) errorEl.classList.add('hidden');
+    }
+};
+
 // ── Logout ──
 window.logout = function() {
     localStorage.removeItem('cycleShopSession');
     currentUser = null;
-    window.dbPrefix = '';
+    window.dbPrefix = 'developer/';
     navigate('#/login');
     // Force reload to clear all cached state arrays
     window.location.reload();
