@@ -140,6 +140,20 @@ window.editProduct = (id) => {
     const isCycle = cycleCategories.includes(product.category.toUpperCase());
     const isCommon = product.category.toUpperCase() === 'COMMON';
 
+    const sizeInput = document.getElementById('cycle-size');
+    const sectionInput = document.getElementById('product-section');
+
+    if (isCycle) {
+        sizeInput.required = true;
+        sectionInput.required = true;
+    } else if (isCommon) {
+        sizeInput.required = false;
+        sectionInput.required = true;
+    } else {
+        sizeInput.required = false;
+        sectionInput.required = false;
+    }
+
     document.getElementById('cycle-size-group').style.display = isCycle ? 'flex' : 'none';
     document.getElementById('product-section-group').style.display = (isCycle || isCommon) ? 'flex' : 'none';
     document.getElementById('common-checkboxes-group').style.display = isCommon ? 'flex' : 'none';
