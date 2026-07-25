@@ -9,6 +9,14 @@
 
 ---
 
+## 🔗 Live Demo
+Experience the live application here: **[Chindhamani Cycle Traders](https://chindhamani-cycle-traders.vercel.app/)**
+
+> [!IMPORTANT]
+> Please select **Developer Mode** to view and experience the app entirely with full privileges.
+
+---
+
 ## 🌟 Overview
 A premium, glassmorphic Progressive Web App (PWA) designed specifically for **Chindhamani Cycle Traders**. This system handles everything from daily billing and real-time inventory management to deep sales analytics and automated Excel reporting.
 
